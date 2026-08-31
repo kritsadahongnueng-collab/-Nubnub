@@ -13,6 +13,20 @@
 </head>
 <body>
 
+<!-- PIN lock screen: hidden unless a PIN has been set in Settings -->
+<div class="lock-screen" id="lock-screen" hidden>
+  <svg class="brand-mark" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <rect class="mark-brown" x="18" y="14" width="18" height="92" rx="9"/>
+    <rect class="mark-mustard" x="52" y="14" width="18" height="92" rx="9"/>
+    <rect class="mark-brown" x="86" y="14" width="18" height="92" rx="9"/>
+    <rect class="mark-mustard" x="10" y="52" width="100" height="18" rx="9" transform="rotate(-18 60 61)"/>
+  </svg>
+  <h2 class="lock-title">Nubnub</h2>
+  <p class="lock-sub" id="lock-sub">ใส่รหัส 6 หลัก</p>
+  <div class="lock-dots" id="lock-dots"></div>
+  <div class="lock-pad" id="lock-pad"></div>
+</div>
+
 <div class="app">
 
   <!-- Header -->
@@ -29,6 +43,9 @@
         <p>นับรายจ่าย นับของใช้ ในที่เดียว</p>
       </div>
     </div>
+    <button class="icon-btn" id="settings-btn" aria-label="ตั้งค่า">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M12 15.5a3.5 3.5 0 100-7 3.5 3.5 0 000 7z" stroke="currentColor" stroke-width="1.7"/><path d="M19.4 13.5a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V19.5a2 2 0 11-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H4.5a2 2 0 110-4h.09a1.65 1.65 0 001.51-1 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H10a1.65 1.65 0 001-1.51V4.5a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V10a1.65 1.65 0 001.51 1h.09a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+    </button>
   </header>
 
   <!-- ================= PAGE: EXPENSE ================= -->

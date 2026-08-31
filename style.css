@@ -65,8 +65,8 @@ button{ font-family: inherit; }
 }
 
 /* Header */
-.app-header{ padding: 22px 4px 14px; }
-.brand{ display:flex; align-items:center; gap:12px; }
+.app-header{ padding: 22px 4px 14px; display:flex; align-items:center; justify-content:space-between; gap:10px; }
+.brand{ display:flex; align-items:center; gap:12px; min-width:0; }
 .brand-mark{ width:36px; height:36px; flex-shrink:0; }
 .brand-mark .mark-brown{ fill: var(--brown); }
 .brand-mark .mark-mustard{ fill: var(--mustard); }
@@ -83,6 +83,17 @@ button{ font-family: inherit; }
   font-size: 12.5px;
   color: var(--brown-70);
 }
+.icon-btn{
+  width: 38px; height:38px; flex-shrink:0;
+  border-radius: 50%;
+  border: 1.5px solid var(--line);
+  background: var(--paper);
+  color: var(--brown);
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer;
+}
+.icon-btn svg{ width:19px; height:19px; }
+.icon-btn:active{ transform: scale(0.94); }
 
 /* Pages */
 .page{ display:none; flex: 1; flex-direction: column; gap: 20px; padding: 4px; }
@@ -442,6 +453,88 @@ button{ font-family: inherit; }
   margin-top: 8px;
   cursor:pointer;
 }
+
+/* =========================================================
+   Category chip picker (transaction form)
+   ========================================================= */
+.chip-grid{ display:flex; flex-wrap:wrap; gap:8px; }
+.chip{
+  display:flex; align-items:center; gap:6px;
+  border: 1.5px solid var(--line);
+  background: var(--paper);
+  color: var(--brown-70);
+  border-radius: 999px;
+  padding: 8px 13px;
+  font-size: 13px;
+  cursor:pointer;
+}
+.chip-emoji{ font-size: 15px; line-height:1; }
+.chip.is-active{ background: var(--brown); border-color: var(--brown); color: var(--mustard-lt); }
+
+/* =========================================================
+   Settings sheet
+   ========================================================= */
+.settings-section{ margin-bottom: 20px; }
+.settings-section h4{
+  font-family: var(--font-head);
+  font-weight: 400;
+  font-size: 14.5px;
+  margin: 0 0 10px;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.settings-section h4 a{ font-size: 12px; color: var(--brown-70); cursor:pointer; text-decoration: underline; }
+.settings-list{ display:flex; flex-direction:column; gap:8px; margin-bottom: 4px; }
+.settings-item{
+  display:flex; align-items:center; gap:10px;
+  border: 1.5px solid var(--line);
+  background: var(--paper);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+}
+.settings-item .s-emoji{ font-size: 17px; width:22px; text-align:center; }
+.settings-item .s-name{ flex:1; font-size: 13.5px; font-weight:500; }
+.settings-item .s-tag{ font-size: 10.5px; color: var(--brown-40); }
+.settings-item button{ border:none; background:transparent; color: var(--brown-40); cursor:pointer; padding:4px; }
+.settings-item button:hover{ color: var(--rose); }
+.settings-item button svg{ width:15px; height:15px; display:block; }
+.settings-note{ font-size: 11.5px; color: var(--brown-40); margin: -2px 0 10px; }
+
+/* =========================================================
+   PIN lock screen
+   ========================================================= */
+.lock-screen{
+  position: fixed; inset:0; z-index: 100;
+  background: var(--cream);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  padding: 24px;
+}
+.lock-screen .brand-mark{ width:44px; height:44px; margin-bottom:6px; }
+.lock-title{ font-family: var(--font-head); font-weight:400; font-size:24px; margin:0; }
+.lock-sub{ font-size: 13px; color: var(--brown-70); margin: 8px 0 26px; min-height: 18px; text-align:center; }
+.lock-dots{ display:flex; gap:14px; margin-bottom: 30px; }
+.lock-dots span{
+  width:13px; height:13px; border-radius:50%;
+  border: 1.5px solid var(--line);
+  background: transparent;
+  transition: background .12s, border-color .12s;
+}
+.lock-dots span.is-filled{ background: var(--brown); border-color: var(--brown); }
+.lock-dots.is-error{ animation: lock-shake .35s; }
+@keyframes lock-shake{
+  25%{ transform: translateX(-8px); } 50%{ transform: translateX(8px); } 75%{ transform: translateX(-4px); }
+}
+.lock-pad{ display:grid; grid-template-columns: repeat(3, 68px); gap:16px; }
+.lock-pad button{
+  width:68px; height:68px; border-radius:50%;
+  border: 1.5px solid var(--line);
+  background: var(--paper);
+  color: var(--brown);
+  font-size: 22px; font-weight:500;
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer;
+}
+.lock-pad button:active{ background: var(--mustard-lt); }
+.lock-pad button.ghost{ border:none; background:transparent; font-size:13px; color: var(--brown-70); }
 
 /* Toast */
 .toast{
