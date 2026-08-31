@@ -1,1 +1,609 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#DCE5DE">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="นับนับ">
+<title>นับนับ</title>
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%23F4EBA4'/%3E%3Ctext x='90' y='120' font-size='90' text-anchor='middle'%3E🐿️%3C/text%3E%3C/svg%3E">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Anuphan:wght@400;500;600;700&display=swap');
 
+:root{
+  --font-sans:"Plus Jakarta Sans","Anuphan",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --ink:#16130F; --ink2:rgba(22,19,15,.52); --ink3:rgba(22,19,15,.32);
+  --accent:#F4EBA4; --accent2:#E8DA85;
+  --glass:rgba(255,255,255,.52); --glass2:rgba(255,255,255,.32);
+  --line:rgba(255,255,255,.65);
+  --r:26px; --r2:18px;
+  --sh:0 14px 44px rgba(60,72,60,.16);
+  --pos:#2F7D63; --neg:#C05540;
+  --safeT:env(safe-area-inset-top); --safeB:env(safe-area-inset-bottom);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{
+  font-family:var(--font-sans); color:var(--ink);
+  background:#DCE5DE; overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+#bg{position:fixed;inset:0;z-index:-1;overflow:hidden;
+  background:linear-gradient(170deg,#CBDCD6 0%,#DFE6D6 42%,#F0E3CB 72%,#EBD9BC 100%)}
+#bg i{position:absolute;border-radius:50%;filter:blur(70px);opacity:.55;display:block}
+#bg i:nth-child(1){width:60vw;height:60vw;background:#A8C8BE;top:-15vw;left:-15vw}
+#bg i:nth-child(2){width:55vw;height:55vw;background:#F6E9A8;bottom:-10vw;right:-12vw}
+#bg i:nth-child(3){width:44vw;height:44vw;background:#E8C79A;top:40%;left:35%}
+
+.glass{background:var(--glass);backdrop-filter:blur(30px) saturate(180%);
+  -webkit-backdrop-filter:blur(30px) saturate(180%);
+  border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh)}
+.glass-s{background:var(--glass2);backdrop-filter:blur(20px) saturate(170%);
+  -webkit-backdrop-filter:blur(20px) saturate(170%);
+  border:1px solid rgba(255,255,255,.5);border-radius:var(--r2)}
+
+.hidden{display:none!important}
+button{font-family:inherit;color:inherit;border:0;background:none;cursor:pointer}
+input,select,textarea{font-family:inherit;font-size:16px;color:inherit;width:100%;
+  padding:13px 15px;border-radius:15px;border:1px solid rgba(255,255,255,.6);
+  background:rgba(255,255,255,.55);outline:none}
+input:focus,select:focus{border-color:var(--accent2);background:rgba(255,255,255,.8)}
+label{display:block;font-size:12.5px;font-weight:600;color:var(--ink2);margin:0 0 6px 3px}
+.field{margin-bottom:13px}
+.row{display:flex;gap:10px}.row>*{flex:1}
+
+/* ---------- LOCK ---------- */
+#lock{position:fixed;inset:0;z-index:50;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;padding:24px;
+  padding-top:calc(24px + var(--safeT));padding-bottom:calc(24px + var(--safeB))}
+.lockLogo{font-size:52px;margin-bottom:8px}
+.lockTitle{font-size:23px;font-weight:800;margin:0}
+.lockSub{font-size:14px;color:var(--ink2);margin:6px 0 26px;text-align:center;min-height:20px}
+.dots{display:flex;gap:14px;margin-bottom:34px}
+.dots b{width:14px;height:14px;border-radius:50%;background:rgba(255,255,255,.5);
+  border:1px solid var(--line);transition:.18s}
+.dots b.on{background:var(--ink);border-color:var(--ink);transform:scale(1.12)}
+.dots.err{animation:shake .4s}
+@keyframes shake{25%{transform:translateX(-9px)}50%{transform:translateX(9px)}75%{transform:translateX(-5px)}}
+.pad{display:grid;grid-template-columns:repeat(3,74px);gap:16px}
+.pad button{height:74px;border-radius:50%;font-size:26px;font-weight:600;
+  background:var(--glass);backdrop-filter:blur(24px) saturate(180%);
+  -webkit-backdrop-filter:blur(24px) saturate(180%);
+  border:1px solid var(--line);box-shadow:0 6px 18px rgba(60,72,60,.12);transition:.12s}
+.pad button:active{transform:scale(.92);background:var(--accent)}
+.pad button.ghost{background:transparent;border:0;box-shadow:none;font-size:19px}
+
+/* ---------- SHELL ---------- */
+#app{max-width:520px;margin:0 auto;padding:calc(var(--safeT) + 14px) 16px calc(var(--safeB) + 108px)}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.topbar h1{font-size:21px;font-weight:800;margin:0;letter-spacing:-.3px}
+.iconbtn{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;font-size:17px;
+  background:var(--glass);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border:1px solid var(--line);box-shadow:0 5px 15px rgba(60,72,60,.11)}
+.iconbtn:active{transform:scale(.9)}
+
+.tabbar{position:fixed;left:50%;transform:translateX(-50%);
+  bottom:calc(var(--safeB) + 14px);z-index:30;display:flex;gap:4px;padding:6px;
+  border-radius:30px;background:rgba(255,255,255,.5);
+  backdrop-filter:blur(34px) saturate(190%);-webkit-backdrop-filter:blur(34px) saturate(190%);
+  border:1px solid var(--line);box-shadow:0 12px 34px rgba(50,60,50,.2)}
+.tabbar button{padding:11px 15px;border-radius:24px;font-size:12px;font-weight:600;
+  display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--ink2);transition:.18s}
+.tabbar button em{font-style:normal;font-size:18px;line-height:1}
+.tabbar button.on{background:var(--accent);color:var(--ink);box-shadow:0 3px 10px rgba(180,165,80,.35)}
+
+/* ---------- CARDS ---------- */
+.card{padding:20px;margin-bottom:14px}
+.bal-label{font-size:13px;color:var(--ink2);font-weight:600}
+.bal{font-size:44px;font-weight:800;letter-spacing:-2px;margin:2px 0 14px;line-height:1.05}
+.bal small{font-size:20px;font-weight:700;letter-spacing:-.5px}
+.split{display:flex;gap:10px}
+.split div{flex:1;padding:12px 14px;border-radius:16px;background:rgba(255,255,255,.45);
+  border:1px solid rgba(255,255,255,.55)}
+.split span{display:block;font-size:11.5px;color:var(--ink2);font-weight:600}
+.split b{font-size:17px;font-weight:700;letter-spacing:-.4px}
+.pos{color:var(--pos)}.neg{color:var(--neg)}
+
+.quick{display:flex;gap:12px;margin-bottom:16px}
+.quick button{flex:1;padding:16px;border-radius:22px;font-size:15px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  background:var(--glass);backdrop-filter:blur(26px);-webkit-backdrop-filter:blur(26px);
+  border:1px solid var(--line);box-shadow:var(--sh)}
+.quick button:active{transform:scale(.97)}
+.quick button.acc{background:var(--accent);border-color:rgba(255,255,255,.7)}
+
+.sec{font-size:14px;font-weight:700;margin:20px 4px 10px;display:flex;justify-content:space-between;align-items:center}
+.sec a{font-size:12.5px;font-weight:600;color:var(--ink2);text-decoration:none}
+
+.list{padding:8px}
+.item{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:16px;transition:.15s}
+.item:active{background:rgba(255,255,255,.5)}
+.ava{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;font-size:19px;
+  background:rgba(255,255,255,.62);border:1px solid rgba(255,255,255,.6);flex:none}
+.item .m{flex:1;min-width:0}
+.item .m b{display:block;font-size:14.5px;font-weight:600}
+.item .m span{font-size:12px;color:var(--ink2)}
+.item .amt{font-size:15px;font-weight:700;letter-spacing:-.3px;white-space:nowrap}
+.empty{text-align:center;padding:34px 18px;color:var(--ink2);font-size:13.5px}
+.empty em{display:block;font-style:normal;font-size:34px;margin-bottom:8px;opacity:.6}
+
+.pill{display:inline-block;padding:4px 11px;border-radius:20px;font-size:11.5px;font-weight:700}
+.p-ok{background:rgba(47,125,99,.16);color:var(--pos)}
+.p-warn{background:rgba(214,160,40,.2);color:#9A6F14}
+.p-bad{background:rgba(192,85,64,.16);color:var(--neg)}
+.p-best{background:var(--accent);color:#6B5C10}
+
+.bar{height:7px;border-radius:6px;background:rgba(255,255,255,.55);overflow:hidden;margin-top:8px}
+.bar i{display:block;height:100%;border-radius:6px;background:var(--pos);transition:.4s}
+
+.mini{padding:9px 13px;border-radius:14px;font-size:12.5px;font-weight:700;
+  background:rgba(255,255,255,.62);border:1px solid rgba(255,255,255,.6)}
+.mini:active{transform:scale(.94)}
+.mini.acc{background:var(--accent)}
+
+.btn{display:block;width:100%;padding:16px;border-radius:20px;font-size:15.5px;font-weight:700;
+  background:var(--accent);box-shadow:0 8px 22px rgba(180,165,80,.32)}
+.btn:active{transform:scale(.98)}
+.btn.g{background:rgba(255,255,255,.55);border:1px solid var(--line);box-shadow:none}
+.btn.d{background:rgba(192,85,64,.14);color:var(--neg);box-shadow:none}
+
+/* ---------- SHEET ---------- */
+#sheet{position:fixed;inset:0;z-index:60;display:flex;align-items:flex-end;justify-content:center}
+#sheet .bd{position:absolute;inset:0;background:rgba(30,40,35,.3);backdrop-filter:blur(3px)}
+#sheet .pn{position:relative;width:100%;max-width:520px;max-height:88vh;overflow-y:auto;
+  padding:10px 18px calc(24px + var(--safeB));
+  border-radius:32px 32px 0 0;background:rgba(255,255,255,.72);
+  backdrop-filter:blur(38px) saturate(190%);-webkit-backdrop-filter:blur(38px) saturate(190%);
+  border:1px solid var(--line);box-shadow:0 -12px 44px rgba(50,60,50,.22);
+  animation:up .3s cubic-bezier(.22,1,.36,1)}
+@keyframes up{from{transform:translateY(100%)}}
+.grab{width:38px;height:5px;border-radius:5px;background:rgba(22,19,15,.18);margin:0 auto 14px}
+#sheet h3{font-size:19px;font-weight:800;margin:0 0 16px 3px}
+.seg{display:flex;gap:6px;padding:5px;border-radius:18px;background:rgba(255,255,255,.5);
+  border:1px solid rgba(255,255,255,.6);margin-bottom:15px}
+.seg button{flex:1;padding:11px;border-radius:14px;font-size:14px;font-weight:700;color:var(--ink2)}
+.seg button.on{background:var(--accent);color:var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips button{padding:9px 13px;border-radius:16px;font-size:13px;font-weight:600;
+  background:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.6)}
+.chips button.on{background:var(--accent);border-color:var(--accent2)}
+canvas{max-width:100%}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--safeB) + 96px);
+  z-index:80;padding:12px 20px;border-radius:20px;font-size:13.5px;font-weight:600;
+  background:rgba(255,255,255,.8);backdrop-filter:blur(24px);border:1px solid var(--line);
+  box-shadow:var(--sh);animation:up2 .3s}
+@keyframes up2{from{opacity:0;transform:translate(-50%,14px)}}
+</style>
+</head>
+<body>
+<div id="bg"><i></i><i></i><i></i></div>
+
+<div id="lock">
+  <div class="lockLogo">🐿️</div>
+  <h2 class="lockTitle">นับนับ</h2>
+  <p class="lockSub" id="lkSub">ใส่รหัส 6 หลัก</p>
+  <div class="dots" id="lkDots"></div>
+  <div class="pad" id="lkPad"></div>
+</div>
+
+<div id="app" class="hidden">
+  <div class="topbar">
+    <h1 id="ttl">สวัสดี 👋</h1>
+    <button class="iconbtn" onclick="go('set')">⚙️</button>
+  </div>
+  <main id="view"></main>
+</div>
+
+<nav class="tabbar hidden" id="tabs"></nav>
+<div id="sheet" class="hidden"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+/* ═══════════ DATA ═══════════ */
+const KEY='nubnub_v1', $=s=>document.querySelector(s), uid=()=>Math.random().toString(36).slice(2,10);
+const seed=()=>({version:1,pin:null,cred:null,
+ cats:[{id:'c1',n:'อาหาร',e:'🍜',t:'ex'},{id:'c2',n:'ของใช้ในบ้าน',e:'🧻',t:'ex'},
+   {id:'c3',n:'เดินทาง',e:'🚌',t:'ex'},{id:'c4',n:'ค่าน้ำ-ไฟ-เน็ต',e:'💡',t:'ex'},
+   {id:'c5',n:'สุขภาพ',e:'💊',t:'ex'},{id:'c6',n:'บันเทิง',e:'🎬',t:'ex'},
+   {id:'c7',n:'เงินเดือน',e:'💰',t:'in'},{id:'c8',n:'รายได้เสริม',e:'✨',t:'in'}],
+ tx:[],items:[],prices:[]});
+let DB;
+try{DB=JSON.parse(localStorage.getItem(KEY))||seed()}catch(e){DB=seed()}
+const save=()=>localStorage.setItem(KEY,JSON.stringify(DB));
+const money=n=>(n<0?'-':'')+'฿'+Math.abs(n).toLocaleString('th-TH',{minimumFractionDigits:2,maximumFractionDigits:2});
+const today=()=>new Date().toISOString().slice(0,10);
+const ym=d=>d.slice(0,7);
+const cat=id=>DB.cats.find(c=>c.id===id)||{n:'อื่นๆ',e:'📦',t:'ex'};
+const item=id=>DB.items.find(i=>i.id===id);
+function toast(m){const t=document.createElement('div');t.className='toast';t.textContent=m;
+  document.body.appendChild(t);setTimeout(()=>t.remove(),1900)}
+function buzz(){navigator.vibrate&&navigator.vibrate(8)}
+
+/* ═══════════ LOCK ═══════════ */
+let buf='',stage='',tmp='';
+async function hash(s){
+  try{const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s+'|nub'));
+    return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}
+  catch(e){let h=5381;for(const c of s+'|nub')h=(h*33^c.charCodeAt(0))>>>0;return 'f'+h}
+}
+function drawDots(err){
+  $('#lkDots').className='dots'+(err?' err':'');
+  $('#lkDots').innerHTML=[0,1,2,3,4,5].map(i=>`<b class="${i<buf.length?'on':''}"></b>`).join('');
+}
+function padUI(){
+  const bio=DB.cred?`<button class="ghost" onclick="bioAuth()">Face ID</button>`:`<button class="ghost"></button>`;
+  $('#lkPad').innerHTML=[1,2,3,4,5,6,7,8,9].map(n=>`<button onclick="tap('${n}')">${n}</button>`).join('')
+    +(stage==='new'||stage==='confirm'?`<button class="ghost"></button>`:bio)
+    +`<button onclick="tap('0')">0</button><button class="ghost" onclick="del()">⌫</button>`;
+}
+function tap(n){buzz();if(buf.length>=6)return;buf+=n;drawDots();if(buf.length===6)setTimeout(submit,140)}
+function del(){buzz();buf=buf.slice(0,-1);drawDots()}
+async function submit(){
+  if(stage==='new'){tmp=buf;buf='';stage='confirm';$('#lkSub').textContent='ยืนยันรหัสอีกครั้ง';drawDots();padUI();return}
+  if(stage==='confirm'){
+    if(buf===tmp){DB.pin=await hash(buf);save();openApp()}
+    else{buf='';tmp='';stage='new';$('#lkSub').textContent='รหัสไม่ตรงกัน ลองใหม่นะ';drawDots(1);padUI()}
+    return}
+  if(await hash(buf)===DB.pin)openApp();
+  else{buf='';drawDots(1);$('#lkSub').textContent='รหัสไม่ถูกต้อง';buzz()}
+}
+async function bioAuth(){
+  try{
+    await navigator.credentials.get({publicKey:{
+      challenge:crypto.getRandomValues(new Uint8Array(32)),
+      allowCredentials:[{type:'public-key',id:Uint8Array.from(atob(DB.cred),c=>c.charCodeAt(0))}],
+      userVerification:'required',timeout:60000}});
+    openApp();
+  }catch(e){toast('ยืนยันตัวตนไม่สำเร็จ')}
+}
+async function bioSetup(){
+  try{
+    const c=await navigator.credentials.create({publicKey:{
+      challenge:crypto.getRandomValues(new Uint8Array(32)),
+      rp:{name:'นับนับ'},
+      user:{id:crypto.getRandomValues(new Uint8Array(16)),name:'nubnub',displayName:'นับนับ'},
+      pubKeyCredParams:[{type:'public-key',alg:-7},{type:'public-key',alg:-257}],
+      authenticatorSelection:{authenticatorAttachment:'platform',userVerification:'required'},
+      timeout:60000}});
+    DB.cred=btoa(String.fromCharCode(...new Uint8Array(c.rawId)));save();
+    toast('เปิด Face ID แล้ว ✨');render();
+  }catch(e){toast('อุปกรณ์นี้ยังใช้ Face ID ไม่ได้')}
+}
+function bootLock(){
+  stage=DB.pin?'enter':'new';
+  $('#lkSub').textContent=DB.pin?'ใส่รหัส 6 หลัก':'ตั้งรหัส 6 หลักสำหรับล็อกแอป';
+  drawDots();padUI();
+  if(DB.cred)setTimeout(bioAuth,400);
+}
+function openApp(){
+  $('#lock').classList.add('hidden');$('#app').classList.remove('hidden');
+  $('#tabs').classList.remove('hidden');render();
+}
+
+/* ═══════════ NAV ═══════════ */
+let page='home';
+const TABS=[['home','🏠','หน้าหลัก'],['tx','📒','รายการ'],['pan','🧺','ตู้ของฉัน'],['pr','🏷️','เทียบราคา']];
+function go(p){page=p;render();window.scrollTo(0,0)}
+function render(){
+  $('#tabs').innerHTML=TABS.map(([k,e,l])=>
+    `<button class="${page===k?'on':''}" onclick="go('${k}')"><em>${e}</em>${l}</button>`).join('');
+  const T={home:'สวัสดี 👋',tx:'รายการทั้งหมด',pan:'ตู้ของฉัน 🧺',pr:'เทียบราคา 🏷️',set:'ตั้งค่า ⚙️'};
+  $('#ttl').textContent=T[page];
+  $('#view').innerHTML=({home:vHome,tx:vTx,pan:vPan,pr:vPr,set:vSet})[page]();
+  if(page==='home')drawChart();
+}
+
+/* ═══════════ HOME ═══════════ */
+function monthTx(m){return DB.tx.filter(t=>ym(t.d)===m)}
+function vHome(){
+  const m=ym(today()),mt=monthTx(m);
+  const inc=mt.filter(t=>t.t==='in').reduce((s,t)=>s+t.a,0);
+  const exp=mt.filter(t=>t.t==='ex').reduce((s,t)=>s+t.a,0);
+  const recent=[...DB.tx].sort((a,b)=>b.d.localeCompare(a.d)||b.id.localeCompare(a.id)).slice(0,5);
+  const low=DB.items.filter(i=>daysLeft(i)!==null&&daysLeft(i)<=5).length;
+  return `
+  <div class="glass card">
+    <div class="bal-label">คงเหลือเดือนนี้</div>
+    <div class="bal ${inc-exp<0?'neg':''}">${money(inc-exp)}</div>
+    <div class="split">
+      <div><span>รายรับ</span><b class="pos">${money(inc)}</b></div>
+      <div><span>รายจ่าย</span><b class="neg">${money(exp)}</b></div>
+    </div>
+  </div>
+  <div class="quick">
+    <button class="acc" onclick="txSheet('ex')">➖ จ่าย</button>
+    <button onclick="txSheet('in')">➕ รับ</button>
+  </div>
+  ${low?`<div class="glass-s card" style="padding:14px 16px;display:flex;gap:10px;align-items:center"
+    onclick="go('pan')"><span style="font-size:20px">⚠️</span>
+    <div style="flex:1"><b style="font-size:14px">ของใกล้หมด ${low} รายการ</b>
+    <div style="font-size:12px;color:var(--ink2)">แตะดูในตู้ของฉัน</div></div><span>›</span></div>`:''}
+  ${exp>0?`<div class="glass card"><div class="sec" style="margin:0 0 6px">จ่ายไปกับอะไรบ้าง</div>
+    <canvas id="ch" height="200"></canvas></div>`:''}
+  <div class="sec">รายการล่าสุด<a onclick="go('tx')">ดูทั้งหมด ›</a></div>
+  <div class="glass list">${recent.length?recent.map(txRow).join(''):emp('🍃','ยังไม่มีรายการ<br>กดปุ่มด้านบนเพื่อเริ่มบันทึกเลย')}</div>`;
+}
+const emp=(e,t)=>`<div class="empty"><em>${e}</em>${t}</div>`;
+function txRow(t){
+  const c=cat(t.c);
+  return `<div class="item" onclick="txSheet('${t.t}','${t.id}')">
+    <div class="ava">${c.e}</div>
+    <div class="m"><b>${t.n||c.n}</b><span>${c.n} · ${fmtD(t.d)}</span></div>
+    <div class="amt ${t.t==='in'?'pos':''}">${t.t==='in'?'+':'-'}${money(t.a).slice(1)}</div></div>`;
+}
+const fmtD=d=>{const x=new Date(d+'T00:00');const M=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  return d===today()?'วันนี้':x.getDate()+' '+M[x.getMonth()]};
+let chart;
+function drawChart(){
+  const cv=$('#ch');if(!cv||!window.Chart)return;
+  const mt=monthTx(ym(today())).filter(t=>t.t==='ex'),g={};
+  mt.forEach(t=>g[t.c]=(g[t.c]||0)+t.a);
+  const e=Object.entries(g).sort((a,b)=>b[1]-a[1]);
+  chart&&chart.destroy();
+  chart=new Chart(cv,{type:'doughnut',
+    data:{labels:e.map(([k])=>cat(k).e+' '+cat(k).n),datasets:[{data:e.map(([,v])=>v),
+      backgroundColor:['#E8DA85','#A8C8BE','#E8C79A','#C9B8E0','#F0AFA0','#9FC3D8','#CDD6A0','#E3C3D6'],
+      borderWidth:3,borderColor:'rgba(255,255,255,.6)'}]},
+    options:{plugins:{legend:{position:'bottom',labels:{font:{family:'"Plus Jakarta Sans","Anuphan"',size:11.5},
+      padding:12,usePointStyle:true,pointStyle:'circle'}}},cutout:'62%'}});
+}
+
+/* ═══════════ TX PAGE ═══════════ */
+let fm=ym(today());
+function vTx(){
+  const list=monthTx(fm).sort((a,b)=>b.d.localeCompare(a.d)||b.id.localeCompare(a.id));
+  const months=[...new Set(DB.tx.map(t=>ym(t.d)))].sort().reverse();
+  if(!months.includes(fm))months.unshift(fm);
+  const inc=list.filter(t=>t.t==='in').reduce((s,t)=>s+t.a,0);
+  const exp=list.filter(t=>t.t==='ex').reduce((s,t)=>s+t.a,0);
+  return `<div class="field"><select onchange="fm=this.value;render()">
+    ${months.map(m=>`<option value="${m}" ${m===fm?'selected':''}>${mLabel(m)}</option>`).join('')}</select></div>
+  <div class="glass card"><div class="split">
+    <div><span>รายรับ</span><b class="pos">${money(inc)}</b></div>
+    <div><span>รายจ่าย</span><b class="neg">${money(exp)}</b></div></div></div>
+  <div class="quick"><button class="acc" onclick="txSheet('ex')">➖ จ่าย</button>
+    <button onclick="txSheet('in')">➕ รับ</button></div>
+  <div class="glass list">${list.length?list.map(txRow).join(''):emp('📭','เดือนนี้ยังไม่มีรายการ')}</div>`;
+}
+const mLabel=m=>{const M=['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+  const[y,mm]=m.split('-');return M[+mm-1]+' '+(+y+543)};
+
+/* ═══════════ SHEET ═══════════ */
+function sheet(h){$('#sheet').innerHTML=`<div class="bd" onclick="closeSheet()"></div>
+  <div class="pn"><div class="grab"></div>${h}</div>`;$('#sheet').classList.remove('hidden')}
+function closeSheet(){$('#sheet').classList.add('hidden');$('#sheet').innerHTML=''}
+
+let tType='ex',tCat='';
+function txSheet(type,id){
+  const ed=id?DB.tx.find(t=>t.id===id):null;
+  tType=ed?ed.t:type;tCat=ed?ed.c:(DB.cats.find(c=>c.t===tType)||{}).id;
+  sheet(`<h3>${ed?'แก้ไขรายการ':'บันทึกรายการ'}</h3>
+  <div class="seg">
+    <button class="${tType==='ex'?'on':''}" onclick="swT('ex')">รายจ่าย</button>
+    <button class="${tType==='in'?'on':''}" onclick="swT('in')">รายรับ</button></div>
+  <div class="field"><label>จำนวนเงิน (บาท)</label>
+    <input id="fA" type="text" inputmode="decimal" placeholder="0.00" value="${ed?ed.a:''}"
+    style="font-size:30px;font-weight:800;text-align:center;padding:16px"></div>
+  <div class="field"><label>หมวดหมู่</label><div class="chips" id="fC"></div></div>
+  <div class="field"><label>บันทึกช่วยจำ</label>
+    <input id="fN" placeholder="เช่น ข้าวมันไก่" value="${ed?(ed.n||''):''}"></div>
+  <div class="field"><label>วันที่</label><input id="fD" type="date" value="${ed?ed.d:today()}"></div>
+  <button class="btn" onclick="saveTx('${id||''}')">${ed?'บันทึกการแก้ไข':'บันทึก'}</button>
+  ${ed?`<button class="btn d" style="margin-top:9px" onclick="delTx('${id}')">ลบรายการนี้</button>`:''}`);
+  chips();setTimeout(()=>$('#fA').focus(),250);
+}
+function swT(t){tType=t;tCat=(DB.cats.find(c=>c.t===t)||{}).id;
+  document.querySelectorAll('.seg button').forEach((b,i)=>b.classList.toggle('on',(i===0)===(t==='ex')));chips()}
+function chips(){$('#fC').innerHTML=DB.cats.filter(c=>c.t===tType)
+  .map(c=>`<button class="${c.id===tCat?'on':''}" onclick="tCat='${c.id}';chips()">${c.e} ${c.n}</button>`).join('')}
+function saveTx(id){
+  const a=parseFloat($('#fA').value);
+  if(!a||a<=0)return toast('ใส่จำนวนเงินก่อนนะ');
+  const o={t:tType,a:Math.round(a*100)/100,c:tCat,n:$('#fN').value.trim(),d:$('#fD').value||today()};
+  if(id)Object.assign(DB.tx.find(t=>t.id===id),o);else DB.tx.push({id:uid(),...o});
+  save();closeSheet();render();toast(id?'แก้ไขแล้ว ✓':'บันทึกแล้ว ✓');buzz();
+}
+function delTx(id){if(!confirm('ลบรายการนี้?'))return;DB.tx=DB.tx.filter(t=>t.id!==id);save();closeSheet();render();toast('ลบแล้ว')}
+
+/* ═══════════ PANTRY ═══════════ */
+function daysLeft(i){return i.perDay>0?Math.floor(i.stock/i.perDay):null}
+function vPan(){
+  const list=[...DB.items].sort((a,b)=>{const x=daysLeft(a),y=daysLeft(b);
+    return (x===null?9e9:x)-(y===null?9e9:y)});
+  return `<div class="quick"><button class="acc" onclick="itemSheet()">➕ เพิ่มของในตู้</button></div>
+  ${list.length?list.map(panCard).join(''):`<div class="glass">${emp('🧺','ตู้ยังว่างอยู่<br>เพิ่มของใช้ประจำที่ซื้อบ่อยๆ ได้เลย')}</div>`}`;
+}
+function panCard(i){
+  const d=daysLeft(i);
+  const cls=d===null?'p-ok':d<=3?'p-bad':d<=7?'p-warn':'p-ok';
+  const txt=d===null?'ไม่ได้ตั้งอัตราใช้':`เหลืออีก ~${d} วัน`;
+  const full=i.perDay>0?Math.min(100,(i.stock/(i.perDay*30))*100):100;
+  return `<div class="glass card" style="padding:16px">
+    <div style="display:flex;gap:12px;align-items:flex-start">
+      <div class="ava" style="width:46px;height:46px;font-size:22px">${i.e}</div>
+      <div style="flex:1;min-width:0">
+        <b style="font-size:15.5px">${i.n}</b>
+        <div style="font-size:12.5px;color:var(--ink2);margin-top:1px">
+          คงเหลือ <b style="color:var(--ink)">${round(i.stock)}</b> ${i.u}
+          ${i.packSize?` · แพ็คละ ${round(i.packSize)} ${i.u}`:''}</div>
+        <div style="margin-top:7px"><span class="pill ${cls}">${txt}</span></div>
+      </div>
+      <button class="iconbtn" style="width:34px;height:34px;font-size:14px" onclick="itemSheet('${i.id}')">✏️</button>
+    </div>
+    <div class="bar"><i style="width:${full}%;background:${d===null?'#A8C8BE':d<=3?'#C05540':d<=7?'#D6A028':'#2F7D63'}"></i></div>
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button class="mini" style="flex:1" onclick="useItem('${i.id}',1)">ใช้ 1 ${i.u}</button>
+      <button class="mini" style="flex:1" onclick="useItem('${i.id}',${i.perDay||1})">ใช้ 1 วัน</button>
+      <button class="mini acc" style="flex:1.3" onclick="refillSheet('${i.id}')">🛒 เติมของ</button>
+    </div></div>`;
+}
+const round=n=>Math.round(n*100)/100;
+function useItem(id,q){const i=item(id);i.stock=Math.max(0,round(i.stock-q));save();render();buzz();
+  if(i.stock===0)toast(i.e+' หมดแล้ว!')}
+function itemSheet(id){
+  const e=id?item(id):null;
+  sheet(`<h3>${e?'แก้ไขของ':'เพิ่มของในตู้'}</h3>
+  <div class="row"><div class="field" style="max-width:92px"><label>ไอคอน</label>
+    <input id="iE" value="${e?e.e:'🧴'}" style="text-align:center;font-size:22px"></div>
+    <div class="field"><label>ชื่อของ</label><input id="iN" placeholder="เช่น ผงซักฟอก" value="${e?e.n:''}"></div></div>
+  <div class="row"><div class="field"><label>หน่วย</label><input id="iU" placeholder="ชิ้น / ml / กรัม" value="${e?e.u:'ชิ้น'}"></div>
+    <div class="field"><label>คงเหลือตอนนี้</label><input id="iS" type="text" inputmode="decimal" value="${e?e.stock:0}"></div></div>
+  <div class="row"><div class="field"><label>1 แพ็คมีกี่หน่วย</label><input id="iP" type="text" inputmode="decimal" value="${e?(e.packSize||''):''}" placeholder="เช่น 12"></div>
+    <div class="field"><label>ใช้วันละกี่หน่วย</label><input id="iD" type="text" inputmode="decimal" value="${e?(e.perDay||''):''}" placeholder="เช่น 0.5"></div></div>
+  <button class="btn" onclick="saveItem('${id||''}')">บันทึก</button>
+  ${e?`<button class="btn d" style="margin-top:9px" onclick="delItem('${id}')">ลบของชิ้นนี้</button>`:''}`);
+}
+function saveItem(id){
+  const n=$('#iN').value.trim();if(!n)return toast('ใส่ชื่อของก่อนนะ');
+  const o={e:$('#iE').value.trim()||'📦',n,u:$('#iU').value.trim()||'ชิ้น',
+    stock:+$('#iS').value||0,packSize:+$('#iP').value||0,perDay:+$('#iD').value||0};
+  if(id)Object.assign(item(id),o);else DB.items.push({id:uid(),...o});
+  save();closeSheet();render();toast('บันทึกแล้ว ✓');
+}
+function delItem(id){if(!confirm('ลบของชิ้นนี้และประวัติราคา?'))return;
+  DB.items=DB.items.filter(i=>i.id!==id);DB.prices=DB.prices.filter(p=>p.i!==id);
+  save();closeSheet();render();toast('ลบแล้ว')}
+
+function refillSheet(id){
+  const i=item(id),last=DB.prices.filter(p=>p.i===id).slice(-1)[0];
+  sheet(`<h3>🛒 เติม ${i.e} ${i.n}</h3>
+  <div class="row"><div class="field"><label>ซื้อกี่แพ็ค</label>
+      <input id="rQ" type="text" inputmode="decimal" value="1"></div>
+    <div class="field"><label>1 แพ็คมีกี่ ${i.u}</label>
+      <input id="rS" type="text" inputmode="decimal" value="${i.packSize||''}"></div></div>
+  <div class="row"><div class="field"><label>ราคาต่อแพ็ค (บาท)</label>
+      <input id="rP" type="text" inputmode="decimal" value="${last?last.p:''}" placeholder="0.00"></div>
+    <div class="field"><label>ร้าน</label><input id="rShop" value="${last?last.s:''}" placeholder="เช่น โลตัส"></div></div>
+  <div class="field"><label>หมวดหมู่ค่าใช้จ่าย</label><select id="rC">
+    ${DB.cats.filter(c=>c.t==='ex').map(c=>`<option value="${c.id}">${c.e} ${c.n}</option>`).join('')}</select></div>
+  <label style="display:flex;gap:9px;align-items:center;margin:4px 3px 16px;font-size:13.5px">
+    <input type="checkbox" id="rTx" checked style="width:19px;height:19px;padding:0">
+    บันทึกเป็นรายจ่ายด้วย</label>
+  <button class="btn" onclick="doRefill('${id}')">เติมเข้าตู้</button>`);
+}
+function doRefill(id){
+  const i=item(id),q=+$('#rQ').value||0,ps=+$('#rS').value||0,p=+$('#rP').value||0,s=$('#rShop').value.trim();
+  if(!q||!ps)return toast('ใส่จำนวนแพ็คและขนาดแพ็คก่อนนะ');
+  i.stock=round(i.stock+q*ps);i.packSize=ps;
+  if(p>0){DB.prices.push({id:uid(),i:id,s:s||'ไม่ระบุร้าน',ps,p,d:today()});
+    if($('#rTx').checked)DB.tx.push({id:uid(),t:'ex',a:round(p*q),c:$('#rC').value,n:i.n+(s?' · '+s:''),d:today()});}
+  save();closeSheet();render();toast('เติมแล้ว ✓ '+i.e);buzz();
+}
+
+/* ═══════════ PRICE ═══════════ */
+let pSel='';
+function vPr(){
+  if(!DB.items.length)return `<div class="glass">${emp('🏷️','ยังไม่มีของให้เทียบ<br>เพิ่มของในตู้ของฉันก่อนนะ')}</div>`;
+  if(!pSel||!item(pSel))pSel=DB.items[0].id;
+  const i=item(pSel);
+  const ps=DB.prices.filter(p=>p.i===pSel).map(p=>({...p,unit:p.p/p.ps})).sort((a,b)=>a.unit-b.unit);
+  return `<div class="field"><select onchange="pSel=this.value;render()">
+    ${DB.items.map(x=>`<option value="${x.id}" ${x.id===pSel?'selected':''}>${x.e} ${x.n}</option>`).join('')}</select></div>
+  ${ps.length?`<div class="glass card" style="padding:18px">
+    <div class="bal-label">ถูกที่สุดตอนนี้</div>
+    <div class="bal" style="font-size:34px">฿${round(ps[0].unit)}<small> / ${i.u}</small></div>
+    <div style="font-size:13px;color:var(--ink2)">🏪 ${ps[0].s} · แพ็ค ${round(ps[0].ps)} ${i.u} ราคา ${money(ps[0].p)}</div>
+    </div>`:''}
+  <div class="quick"><button class="acc" onclick="priceSheet()">➕ เพิ่มราคาที่เจอ</button></div>
+  <div class="glass list">${ps.length?ps.map((p,n)=>`
+    <div class="item">
+      <div class="ava">🏪</div>
+      <div class="m"><b>${p.s}</b><span>${round(p.ps)} ${i.u} · ${money(p.p)} · ${fmtD(p.d)}</span></div>
+      <div style="text-align:right">
+        <div class="amt">฿${round(p.unit)}<span style="font-size:10.5px;color:var(--ink2)">/${i.u}</span></div>
+        ${n===0?'<span class="pill p-best" style="margin-top:3px">ถูกสุด</span>':
+          `<div style="font-size:11px;color:var(--neg)">+${Math.round((p.unit/ps[0].unit-1)*100)}%</div>`}
+      </div>
+      <button class="iconbtn" style="width:30px;height:30px;font-size:12px" onclick="delPrice('${p.id}')">🗑</button>
+    </div>`).join(''):emp('🔍','ยังไม่มีข้อมูลราคา<br>เจอราคาที่ไหนก็กดเพิ่มไว้ได้เลย')}</div>`;
+}
+function priceSheet(){
+  const i=item(pSel);
+  sheet(`<h3>เพิ่มราคา ${i.e} ${i.n}</h3>
+  <div class="field"><label>ร้าน</label><input id="pS" placeholder="เช่น แม็คโคร"></div>
+  <div class="row"><div class="field"><label>ขนาดแพ็ค (${i.u})</label>
+      <input id="pZ" type="text" inputmode="decimal" value="${i.packSize||''}"></div>
+    <div class="field"><label>ราคา (บาท)</label><input id="pP" type="text" inputmode="decimal" placeholder="0.00"></div></div>
+  <button class="btn" onclick="savePrice()">บันทึกราคา</button>`);
+}
+function savePrice(){
+  const ps=+$('#pZ').value,p=+$('#pP').value;
+  if(!ps||!p)return toast('ใส่ขนาดแพ็คและราคาก่อนนะ');
+  DB.prices.push({id:uid(),i:pSel,s:$('#pS').value.trim()||'ไม่ระบุร้าน',ps,p,d:today()});
+  save();closeSheet();render();toast('เพิ่มแล้ว ✓');
+}
+function delPrice(id){DB.prices=DB.prices.filter(p=>p.id!==id);save();render()}
+
+/* ═══════════ SETTINGS ═══════════ */
+function vSet(){
+  return `<div class="sec">หมวดหมู่<a onclick="catSheet()">+ เพิ่ม</a></div>
+  <div class="glass list">${DB.cats.map(c=>`<div class="item" onclick="catSheet('${c.id}')">
+    <div class="ava">${c.e}</div><div class="m"><b>${c.n}</b>
+    <span>${c.t==='in'?'รายรับ':'รายจ่าย'}</span></div><span style="color:var(--ink3)">›</span></div>`).join('')}</div>
+
+  <div class="sec">ความปลอดภัย</div>
+  <div class="glass card" style="padding:14px">
+    <button class="btn g" onclick="changePin()">เปลี่ยนรหัส PIN</button>
+    <button class="btn g" style="margin-top:9px" onclick="${DB.cred?"offBio()":"bioSetup()"}">
+      ${DB.cred?'ปิด Face ID':'เปิดใช้ Face ID / Touch ID'}</button>
+  </div>
+
+  <div class="sec">ข้อมูลของฉัน</div>
+  <div class="glass card" style="padding:14px">
+    <div style="font-size:12.5px;color:var(--ink2);margin:0 3px 12px">
+      ${DB.tx.length} รายการ · ${DB.items.length} ของในตู้ · ${DB.prices.length} ราคา</div>
+    <button class="btn g" onclick="exportJ()">⬇️ สำรองข้อมูล (ไฟล์ .json)</button>
+    <button class="btn g" style="margin-top:9px" onclick="$('#imp').click()">⬆️ กู้คืนจากไฟล์สำรอง</button>
+    <input type="file" id="imp" accept=".json" class="hidden" onchange="importJ(this)">
+    <button class="btn d" style="margin-top:9px" onclick="wipe()">ล้างข้อมูลทั้งหมด</button>
+  </div>
+  <p style="text-align:center;font-size:11.5px;color:var(--ink3);margin:22px 0 0">นับนับ · เฟส 1 · v1.0</p>`;
+}
+function catSheet(id){
+  const c=id?DB.cats.find(x=>x.id===id):null;
+  sheet(`<h3>${c?'แก้ไขหมวดหมู่':'เพิ่มหมวดหมู่'}</h3>
+  <div class="row"><div class="field" style="max-width:92px"><label>ไอคอน</label>
+    <input id="cE" value="${c?c.e:'📦'}" style="text-align:center;font-size:22px"></div>
+    <div class="field"><label>ชื่อหมวด</label><input id="cN" value="${c?c.n:''}" placeholder="เช่น กาแฟ"></div></div>
+  <div class="field"><label>ประเภท</label><select id="cT">
+    <option value="ex" ${c&&c.t==='ex'?'selected':''}>รายจ่าย</option>
+    <option value="in" ${c&&c.t==='in'?'selected':''}>รายรับ</option></select></div>
+  <button class="btn" onclick="saveCat('${id||''}')">บันทึก</button>
+  ${c?`<button class="btn d" style="margin-top:9px" onclick="delCat('${id}')">ลบหมวดนี้</button>`:''}`);
+}
+function saveCat(id){
+  const n=$('#cN').value.trim();if(!n)return toast('ใส่ชื่อหมวดก่อนนะ');
+  const o={e:$('#cE').value.trim()||'📦',n,t:$('#cT').value};
+  if(id)Object.assign(DB.cats.find(c=>c.id===id),o);else DB.cats.push({id:uid(),...o});
+  save();closeSheet();render();toast('บันทึกแล้ว ✓');
+}
+function delCat(id){
+  if(DB.tx.some(t=>t.c===id))return toast('มีรายการใช้หมวดนี้อยู่ ลบไม่ได้');
+  DB.cats=DB.cats.filter(c=>c.id!==id);save();closeSheet();render();toast('ลบแล้ว');
+}
+function changePin(){DB.pin=null;save();buf='';tmp='';stage='new';
+  $('#app').classList.add('hidden');$('#tabs').classList.add('hidden');$('#lock').classList.remove('hidden');bootLock()}
+function offBio(){DB.cred=null;save();render();toast('ปิด Face ID แล้ว')}
+function exportJ(){
+  const b=new Blob([JSON.stringify(DB,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(b);
+  a.download='nubnub-backup-'+today()+'.json';a.click();toast('ดาวน์โหลดไฟล์สำรองแล้ว ✓');
+}
+function importJ(el){
+  const f=el.files[0];if(!f)return;const r=new FileReader();
+  r.onload=()=>{try{const d=JSON.parse(r.result);
+    if(!d.cats||!d.tx)throw 0;
+    if(!confirm('กู้คืนข้อมูล? ข้อมูลปัจจุบันจะถูกแทนที่'))return;
+    d.pin=DB.pin;d.cred=DB.cred;DB=d;save();render();toast('กู้คืนสำเร็จ ✓');
+  }catch(e){toast('ไฟล์ไม่ถูกต้อง')}};
+  r.readAsText(f);el.value='';
+}
+function wipe(){if(!confirm('ล้างข้อมูลทั้งหมด? กู้คืนไม่ได้นะ'))return;
+  const p=DB.pin,c=DB.cred;DB=seed();DB.pin=p;DB.cred=c;save();render();toast('ล้างข้อมูลแล้ว')}
+
+/* ═══════════ BOOT ═══════════ */
+bootLock();
+</script>
+</body>
+</html>
